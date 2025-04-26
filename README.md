@@ -1,153 +1,196 @@
-Diffusion-based Adversarial Purification over Latent Embeddings
+# Diffusion-based Adversarial Purification over Latent Embeddings
 
-This repository contains the implementation of the CS607 project, "Diffusion-based Adversarial Purification over Latent Embeddings," a novel approach to adversarial purification using diffusion models in the latent dimension. The project leverages a Pix2Pix-based encoder-decoder architecture to map images to a compact latent space, purify adversarial perturbations via latent diffusion, and reconstruct clean images for classification. Evaluated on the ImageNet dataset with the ResNet-50 classifier against PGD and FGSM attacks ((\epsilon=8/255, 16/255)), our method significantly improves robust accuracy compared to unpurified adversarial images.
-Authors: Bhavik Shangari (12240410), Uday Bhardwaj (12241910), Vedant Marodkar (12240990)Date: April 27, 2025Course: CS607 - Adversarial Machine LearningRepository: https://github.com/BhavikShangari/AdversarialML_Project
-Project Overview
-Adversarial attacks exploit vulnerabilities in deep neural networks by introducing imperceptible perturbations that lead to misclassifications. Traditional defenses, such as adversarial training, are computationally intensive and tailored to specific attack types. Adversarial purification offers a flexible alternative by using generative models to remove perturbations before classification. Our work introduces a novel purification pipeline that performs diffusion in the latent dimension, reducing computational complexity and preserving semantic information.
-Key Contributions:
+This repository contains the implementation of our CS607 course project, **"Diffusion-based Adversarial Purification over Latent Embeddings"** — a novel method for adversarial defense that leverages diffusion models in the **latent space**.  
+We use a **Pix2Pix-based encoder-decoder** architecture to project images into a compact latent space, perform **diffusion-based purification** to remove adversarial perturbations, and reconstruct clean images for robust classification.
 
-Latent Diffusion: Performs diffusion on 512-dimensional latent embeddings instead of high-dimensional images, enhancing computational efficiency.
-Pix2Pix Architecture: Employs an encoder-decoder framework with skip connections to preserve semantic features during purification.
-Robustness: Achieves robust accuracies of 43.4% (PGD, (\epsilon=16/255)) and 41.3% (FGSM, (\epsilon=16/255)) on ImageNet with ResNet-50, compared to 4.7% and 22.1% for unpurified adversarial images.
+Evaluated on the **ImageNet** dataset using a **ResNet-50** classifier under **PGD** and **FGSM** attacks ((\(\epsilon = 8/255, 16/255\))), our approach significantly boosts robust accuracy compared to unpurified adversarial images.
 
-The pipeline is evaluated on the ImageNet dataset (100,000 training images, 10,000 validation images, 200 classes, resized to 64x64) using ResNet-50 against PGD ((\epsilon=8/255, 16/255), 20 iterations, step size (\epsilon/10)) and FGSM ((\epsilon=8/255, 16/255)) attacks.
-Pipeline
-The purification pipeline consists of three components:
+<br>
 
-Encoder: Maps 64x64x3 images to 512-dimensional latent embeddings using a convolutional neural network with LeakyReLU activations and batch normalization.
-Diffusion Model: Applies controlled noise to latent embeddings and denoises them using a feed-forward neural network, conditioned on timesteps, with a DDPM scheduler.
-Decoder: Reconstructs clean 64x64x3 images from purified embeddings using a deconvolutional network with skip connections and ReLU activations.
+> **Authors**:  
+> Bhavik Shangari (12240410), Uday Bhardwaj (12241910), Vedant Marodkar (12240990)  
+> **Date**: April 27, 2025  
+> **Course**: CS607 - Adversarial Machine Learning  
+> **Repository**: [GitHub Link](https://github.com/BhavikShangari/AdversarialML_Project)
 
-Figure 1: Adversarial purification pipeline. Images are encoded to a latent space, purified via diffusion, and decoded for classification.
-Repository Structure
-The repository is organized as follows:
+---
+
+## 🚀 Project Overview
+
+Adversarial attacks introduce small, often imperceptible perturbations to images, leading deep neural networks to make incorrect predictions. Traditional defenses like adversarial training are **attack-specific** and **computationally expensive**.
+
+We propose an alternative: **adversarial purification** using **latent diffusion** — a process that removes adversarial noise before classification.  
+Our method diffuses adversarial noise **directly over latent embeddings** (not raw images), preserving semantic content while being **computationally efficient**.
+
+### 🔑 Key Contributions
+- **Latent Diffusion**: Purification is done in a **512-dimensional latent space**, reducing computational overhead.
+- **Pix2Pix Encoder-Decoder**: Skip connections ensure that semantic features are preserved during purification.
+- **Robustness**: Achieves robust accuracies of:
+  - **43.4%** on PGD attacks (\(\epsilon = 16/255\))  
+  - **41.3%** on FGSM attacks (\(\epsilon = 16/255\))  
+  (Compared to **4.7%** and **22.1%** respectively for unpurified adversarial images.)
+
+---
+
+
+## 🛠️ Pipeline Overview
+
+![Purification Pipeline](Latent_DiffPure (1).png)
+
+
+The purification pipeline consists of three major components:
+
+- **Encoder**  
+  Maps \(64\times64\times3\) images to **512-dimensional** latent embeddings using a convolutional network with LeakyReLU activations and batch normalization.
+
+- **Diffusion Model**  
+  Applies controlled noise to the latent space and denoises it using a feed-forward neural network conditioned on timesteps (DDPM-style scheduling).
+
+- **Decoder**  
+  Reconstructs purified \(64\times64\times3\) images from latent embeddings using a deconvolutional network with skip connections and ReLU activations.
+
+> **Illustration**:  
+> *Images → Latent Embeddings → Diffusion Purification → Reconstructed Images → Classification*
+
+---
+
+## 🧩 Repository Structure
+```bash
 .
-├── create_adv_examples.ipynb       # Notebook to generate adversarial examples (PGD, FGSM)
-├── DiffAE.ipynb                    # Main notebook for training and evaluating the purification pipeline
-├── model_epoch_resnet50_epoch_30.pth  # Pre-trained ResNet-50 model checkpoint
+├── create_adv_examples.ipynb      # Generate adversarial examples (PGD, FGSM)
+├── DiffAE.ipynb                   # Train and evaluate purification pipeline
+├── model_epoch_resnet50_epoch_30.pth # Pretrained ResNet-50 checkpoint
 ├── outputs/
-│   ├── pipeline_checkpoints/       # Model checkpoints for the purification pipeline
-│   │   └── model_epoch_50.pth
-│   ├── pipeline_plots/             # Plots generated during training (if any)
-│   └── pipeline_samples/           # Sample images from training and validation (epochs 10, 20, 30, 40, 50)
-├── README.md                       # This file
-├── train_resnet.py                 # Script to train the ResNet-50 classifier
-└── tree.txt                        # Repository structure
+│   ├── pipeline_checkpoints/      # Saved model checkpoints
+│   ├── pipeline_plots/            # Plots during training (optional)
+│   └── pipeline_samples/          # Sample images (training & validation)
+├── README.md                      # This file
+├── train_resnet.py                # Train ResNet-50 classifier
+└── tree.txt                       # Repository overview
+```
 
-Requirements
-To run the code, ensure the following dependencies are installed:
+---
 
-Python 3.8+
-PyTorch 1.9+
-torchvision
-NumPy
-Pillow
-Jupyter Notebook
-tqdm (for progress bars)
+## 📦 Requirements
 
-Install the dependencies using:
+Make sure the following are installed:
+
+- Python 3.8+
+- PyTorch 1.9+
+- torchvision
+- NumPy
+- Pillow
+- Jupyter Notebook
+- tqdm
+
+Install them via:
+
+```bash
 pip install torch torchvision numpy pillow jupyter tqdm
+```
 
-Setup Instructions
+---
 
-Clone the Repository:
+## ⚙️ Setup Instructions
+
+### 1. Clone the Repository
+```bash
 git clone https://github.com/BhavikShangari/AdversarialML_Project.git
 cd AdversarialML_Project
+```
 
+### 2. Download ImageNet
+- Download the ImageNet (ILSVRC2012) dataset from [image-net.org](https://image-net.org/).
+- Resize images to \(64 \times 64\) and organize:
+  ```
+  ./data/imagenet/
+  ├── train/  (100,000 images, 200 classes)
+  └── val/    (10,000 images, 200 classes)
+  ```
 
-Download ImageNet:
+### 3. Set Up Virtual Environment (Recommended)
+```bash
+python -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
+```
 
-Download the ImageNet dataset (ILSVRC2012) from image-net.org.
-Preprocess the images to 64x64 resolution and organize them into training (100,000 images) and validation (10,000 images) sets across 200 classes.
-Place the dataset in a directory, e.g., ./data/imagenet/.
+### 4. Install Dependencies
+```bash
+pip install torch torchvision numpy pillow jupyter tqdm
+```
 
+---
 
-Set Up the Environment:
+## 🔥 Usage Instructions
 
-Create a virtual environment (recommended):python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-
-Install the required dependencies:pip install torch torchvision numpy pillow jupyter tqdm
-
-
-
-
-
-Usage
-1. Train the ResNet-50 Classifier
-To train the ResNet-50 classifier on ImageNet:
+### Step 1: Train ResNet-50
+```bash
 python train_resnet.py --data_dir ./data/imagenet --epochs 30 --batch_size 64 --lr 2e-4
+```
+- Outputs: `model_epoch_resnet50_epoch_30.pth`
+- Adjust `--epochs`, `--batch_size`, or `--lr` as needed.
 
+---
 
-Outputs a pre-trained model checkpoint (model_epoch_resnet50_epoch_30.pth).
-Adjust hyperparameters (e.g., --epochs, --batch_size, --lr) as needed.
+### Step 2: Generate Adversarial Examples
 
-2. Generate Adversarial Examples
-Use the create_adv_examples.ipynb notebook to generate adversarial examples with PGD and FGSM attacks:
+- Open the notebook:
+```bash
+jupyter notebook create_adv_examples.ipynb
+```
+- Configure:
+  - Attack type: **PGD** or **FGSM**
+  - Epsilon values: \((8/255), (16/255)\)
+  - Checkpoint: `model_epoch_resnet50_epoch_30.pth`
+- Run to generate adversarial examples for a 512-image subset.
 
-Open the notebook:jupyter notebook create_adv_examples.ipynb
+---
 
+### Step 3: Train and Evaluate the Purification Pipeline
 
-Specify the attack parameters ((\epsilon=8/255, 16/255)) and the ResNet-50 checkpoint (model_epoch_resnet50_epoch_30.pth).
-Run the cells to generate adversarial images for a test subset (512 images).
+- Open:
+```bash
+jupyter notebook DiffAE.ipynb
+```
+- Set parameters:
+  - Dataset path: `./data/imagenet`
+  - Epochs: `26`
+  - Learning rate: `2e-4`
+  - Diffusion timestep \(t\): 
+    - \(t = 0.1\) for PGD
+    - \(t = 0.075\) for FGSM
 
-3. Train and Evaluate the Purification Pipeline
-Use the DiffAE.ipynb notebook to train the purification pipeline and evaluate its performance:
+- Outputs are saved in `outputs/pipeline_samples/` every 10 epochs.
 
-Open the notebook:jupyter notebook DiffAE.ipynb
+---
 
+## 📊 Results
 
-Configure the dataset path (./data/imagenet), epochs (26), learning rate (2e-4), and diffusion timesteps ((t^=0.1) for PGD, (t^=0.075) for FGSM).
-Train the encoder, diffusion model, and decoder.
-Evaluate on raw, adversarial, and purified images, measuring standard and robust accuracies.
+| Attack | Settings | Standard Acc | Adversarial Acc | Purified Acc |
+|:------:|:--------:|:------------:|:---------------:|:------------:|
+| PGD | \(\epsilon = 16/255, \alpha=4/255\) | 62.5% | 4.7% | **43.4%** |
+| FGSM | \(\epsilon = 16/255\) | 62.5% | 22.1% | **41.3%** |
 
-Sample outputs (e.g., purified images) are saved in outputs/pipeline_samples/ for training and validation at epochs 10, 20, 30, 40, and 50.
-Reproducing Results
-To reproduce the results from the project report (Table 1):
+- **Raw Images**: 62.5% standard accuracy
+- **Adversarial Images**: Accuracy drops to 4.7% (PGD) and 22.1% (FGSM)
+- **Purified Images**: Accuracy restored to 43.4% (PGD) and 41.3% (FGSM)
 
-Train ResNet-50 using train_resnet.py to achieve a standard accuracy of ~62.5%.
-Generate adversarial examples using create_adv_examples.ipynb for PGD ((\epsilon=16/255, \alpha=4/255)) and FGSM ((\epsilon=16/255)).
-Run the purification pipeline in DiffAE.ipynb to obtain robust accuracies (43.4% for PGD, 41.3% for FGSM).
+---
 
-Results
-The purification pipeline significantly improves robust accuracy on ImageNet with ResNet-50:
+## 📈 Reproducing Results
 
+1. Train ResNet-50 via `train_resnet.py`.
+2. Generate adversarial samples via `create_adv_examples.ipynb`.
+3. Run the purification pipeline via `DiffAE.ipynb`.
+4. Report accuracies following the same evaluation setup.
 
+---
 
-Attack
-Settings
-Standard Acc
-Adversarial Acc
-Purified Acc
+## 🙏 Acknowledgments
 
+We thank the **CS607 course instructors** for their guidance throughout the project.  
+Special thanks to the authors of **DiffPure** for their foundational work on diffusion-based adversarial purification.
 
+This project was developed as part of the **Adversarial Machine Learning** course at **IIT Bhilai**.
 
-PGD
-(\epsilon=16/255, \alpha=4/255)
-62.5%
-4.7%
-43.4%
-
-
-FGSM
-(\epsilon=16/255)
-62.5%
-22.1%
-41.3%
-
-
-
-Raw Images: Standard accuracy of 62.5%.
-Adversarial Images: PGD reduces accuracy to 4.7%, FGSM to 22.1% ((\epsilon=16/255)).
-Purified Images: Purification restores accuracy to 43.4% (PGD) and 41.3% (FGSM).
-
-Acknowledgments
-We thank the CS607 course instructors for their guidance and the authors of DiffPure for their foundational work on diffusion-based purification. This project was developed as part of the Adversarial Machine Learning course.
-Contact
-For questions or issues, please open a GitHub issue or contact:
-
-Bhavik Shangari: bhavik.shangari@example.com
-Uday Bhardwaj: uday.bhardwaj@example.com
-Vedant Marodkar: vedant.marodkar@example.com
-
+---
