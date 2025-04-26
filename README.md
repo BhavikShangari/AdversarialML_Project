@@ -52,6 +52,8 @@ The purification pipeline consists of three major components:
 > **Illustration**:  
 > *Images → Latent Embeddings → Diffusion Purification → Reconstructed Images → Classification*
 
+Download [model_epoch_resnet50_epoch_30.pth](https://drive.google.com/file/d/1RZAjGKrW_WDxg3FNLkDm1us6SspwBPcc/view?usp=sharing) and [model_epoch_50.pth](https://drive.google.com/file/d/167B7EV__0OPbR8mHRsezLqcm4y9qO-wP/view?usp=sharing)
+
 ---
 
 ## 🧩 Repository Structure
@@ -62,11 +64,11 @@ The purification pipeline consists of three major components:
 ├── model_epoch_resnet50_epoch_30.pth # Pretrained ResNet-50 checkpoint
 ├── outputs/
 │   ├── pipeline_checkpoints/      # Saved model checkpoints
+│   │   ├── model_epoch_50.pth 
 │   ├── pipeline_plots/            # Plots during training (optional)
 │   └── pipeline_samples/          # Sample images (training & validation)
 ├── README.md                      # This file
-├── train_resnet.py                # Train ResNet-50 classifier
-└── tree.txt                       # Repository overview
+├── train_resnet.py                # Train ResNet-50 classifier 
 ```
 
 ---
@@ -91,48 +93,17 @@ pip install torch torchvision numpy pillow jupyter tqdm
 
 ---
 
-## ⚙️ Setup Instructions
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/BhavikShangari/AdversarialML_Project.git
-cd AdversarialML_Project
-```
-
-### 2. Download ImageNet
-- Download the ImageNet (ILSVRC2012) dataset from [image-net.org](https://image-net.org/).
-- Resize images to \(64 \times 64\) and organize:
-  ```
-  ./data/imagenet/
-  ├── train/  (100,000 images, 200 classes)
-  └── val/    (10,000 images, 200 classes)
-  ```
-
-### 3. Set Up Virtual Environment (Recommended)
-```bash
-python -m venv venv
-source venv/bin/activate   # On Windows: venv\Scripts\activate
-```
-
-### 4. Install Dependencies
-```bash
-pip install torch torchvision numpy pillow jupyter tqdm
-```
-
----
-
 ## 🔥 Usage Instructions
 
 ### Step 1: Train ResNet-50
 ```bash
-python train_resnet.py --data_dir ./data/imagenet --epochs 30 --batch_size 64 --lr 2e-4
+python train_resnet.py
 ```
 - Outputs: `model_epoch_resnet50_epoch_30.pth`
-- Adjust `--epochs`, `--batch_size`, or `--lr` as needed.
 
 ---
 
-### Step 2: Generate Adversarial Examples
+### Step 2: Generate Adversarial Examples and check Accuracy
 
 - Open the notebook:
 ```bash
@@ -140,20 +111,19 @@ jupyter notebook create_adv_examples.ipynb
 ```
 - Configure:
   - Attack type: **PGD** or **FGSM**
-  - Epsilon values: \((8/255), (16/255)\)
+  - Epsilon values: \((16/255), (16/255)\)
   - Checkpoint: `model_epoch_resnet50_epoch_30.pth`
 - Run to generate adversarial examples for a 512-image subset.
 
 ---
 
-### Step 3: Train and Evaluate the Purification Pipeline
+### Step 3 (Optional): Train the Purification Pipeline
 
 - Open:
 ```bash
 jupyter notebook DiffAE.ipynb
 ```
 - Set parameters:
-  - Dataset path: `./data/imagenet`
   - Epochs: `26`
   - Learning rate: `2e-4`
   - Diffusion timestep \(t\): 
