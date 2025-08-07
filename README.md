@@ -22,6 +22,10 @@ Adversarial attacks introduce small, often imperceptible perturbations to images
 We propose an alternative: **adversarial purification** using **latent diffusion** — a process that removes adversarial noise before classification.  
 Our method diffuses adversarial noise **directly over latent embeddings** (not raw images), preserving semantic content while being **computationally efficient**.
 
+![Latent DiffPure](Latent_DiffPure.png)
+
+
+
 ### 🔑 Key Contributions
 - **Latent Diffusion**: Purification is done in a **512-dimensional latent space**, reducing computational overhead.
 - **Pix2Pix Encoder-Decoder**: Skip connections ensure that semantic features are preserved during purification.
